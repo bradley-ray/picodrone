@@ -10,9 +10,17 @@
 	- [lipo straps](https://www.amazon.com/gp/product/B01ISKTILK/ref=ox_sc_act_image_1?smid=A2P4WQ7IOJ56WV&psc=1)
 
 - pcb components
-	- TODO
+	- TODO: create BOM
 
 - `hardware/`
-	- TODO: kicad schematics & pcb layout
+	- [x] schematic layout
+	- [x] pcb layout
+	- [ ] review schematic/pcb for errors
+	- [ ] review pcb constraints for manuacture
+	- [ ] order parts
+	- [ ] assemble
+	- [ ] test
 - `firmware/`
 	- TODO: write firmware for pi pico
+- `app/`
+	- TODO: basic android app for controller
