@@ -15,9 +15,9 @@
 - `hardware/`
 	- [x] schematic layout
 	- [x] pcb layout
-	- [ ] review schematic/pcb for errors
-	- [ ] review pcb constraints for manuacture
-	- [ ] order parts
+	- [x] review schematic/pcb for errors
+	- [x] review pcb constraints for manuacture
+	- [x] order parts
 	- [ ] assemble
 	- [ ] test
 - `firmware/`

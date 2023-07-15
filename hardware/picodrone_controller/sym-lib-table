@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "2023-07-12_17-02-15")(type "KiCad")(uri "/home/bradley/Documents/dev/github.com/bradley-ray/picodrone/hardware/footprints/nmos_SI2302CDS-T1-E3/2023-07-12_17-02-15.kicad_sym")(options "")(descr ""))
+  (lib (name "DSS16UTR")(type "KiCad")(uri "/home/bradley/Documents/dev/github.com/bradley-ray/picodrone/hardware/footprints/schottky_DSS16UTR/DSS16UTR.kicad_sym")(options "")(descr ""))
+)
