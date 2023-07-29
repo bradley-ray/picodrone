@@ -1,5 +1,8 @@
 # Pico Quadcopter Drone
 
+<img src='hardware/picodrone_controller/picodrone-pcb.png' height=256px />
+<img src='picodrone-assembled.jpg' height=256px />
+
 - non pcb components
 	- [qx95 quadcopter frame](https://www.amazon.com/gp/product/B08LTNT16B/ref=ox_sc_act_image_5?smid=A21I6NP3YWF176&psc=1)
 	- [8520 brushed motors + 55mm propellors](https://www.amazon.com/gp/product/B078NL9KQQ/ref=ox_sc_act_image_4?smid=A2U3BMERFH1POA&psc=1)
@@ -9,8 +12,6 @@
 	- [pico headers](https://www.amazon.com/gp/product/B09F2NZ3GB/ref=ox_sc_act_image_2?smid=A3DUZJNIM9L5CV&psc=1)
 	- [lipo straps](https://www.amazon.com/gp/product/B01ISKTILK/ref=ox_sc_act_image_1?smid=A2P4WQ7IOJ56WV&psc=1)
 
-- pcb components
-	- TODO: create BOM
 
 - `hardware/`
 	- [x] schematic layout
@@ -18,9 +19,11 @@
 	- [x] review schematic/pcb for errors
 	- [x] review pcb constraints for manuacture
 	- [x] order parts
-	- [ ] assemble
+	- [x] assemble
 	- [ ] test
+
 - `firmware/`
 	- TODO: write firmware for pi pico
+
 - `app/`
-	- TODO: basic android app for controller
+	- TODO: basic app for controller
