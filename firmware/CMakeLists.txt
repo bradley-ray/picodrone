@@ -6,15 +6,29 @@ project(picodrone_firmware C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(PICO_BOARD pico_w)
 pico_sdk_init()
 
 add_executable(picodrone
-	main.c
+	src/main.c
+	lib/bluetooth/bt.c
 )
+
 
 pico_enable_stdio_usb(picodrone 1)
 pico_enable_stdio_uart(picodrone 0)
 
 pico_add_extra_outputs(picodrone)
 
-target_link_libraries(picodrone pico_stdlib)
+target_include_directories(picodrone PRIVATE
+	lib/bluetooth
+	config
+)
+
+target_link_libraries(picodrone 
+	pico_stdlib
+	pico_cyw43_arch_none
+	pico_btstack_classic
+	pico_btstack_cyw43
+)
+

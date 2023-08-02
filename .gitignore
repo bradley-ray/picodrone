@@ -5,3 +5,4 @@ hardware/picodrone_controller/picodrone_controller-backups*
 firmware/build
 firmware/compile_commands.json
 .ccls-cache
+.ccls
