@@ -12,6 +12,7 @@ pico_sdk_init()
 add_executable(picodrone
 	src/main.c
 	lib/bluetooth/bt.c
+	lib/mpu6050/mpu.c
 )
 
 
@@ -22,6 +23,7 @@ pico_add_extra_outputs(picodrone)
 
 target_include_directories(picodrone PRIVATE
 	lib/bluetooth
+	lib/mpu6050
 	config
 )
 
@@ -30,5 +32,7 @@ target_link_libraries(picodrone
 	pico_cyw43_arch_none
 	pico_btstack_classic
 	pico_btstack_cyw43
+
+	hardware_i2c
 )
 
