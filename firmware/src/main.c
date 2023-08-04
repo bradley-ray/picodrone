@@ -17,23 +17,15 @@ void hardware_init(void);
 int main() {
 	hardware_init();
 	mpu_init(MPU_ACCEL_4G, MPU_GYRO_500_DEG);
-	//bt_init();
+	btstack_main(0, NULL);
+	btstack_run_loop_execute();
 
-	//btstack_main(0, NULL);
-	//btstack_run_loop_execute();
-
-	mpu_accel_t accel;
-	mpu_gyro_t gyro;
-	while(1) {
-		mpu_update_accel();
-		mpu_update_gyro();
-		sleep_ms(1000);
-	}
+	return 0;
 }
 
 void hardware_init(void) {
 	stdio_init_all();
-    //cyw43_arch_init();
+    cyw43_arch_init();
 
 	// i2c setup for imu
 	i2c_init(i2c0, 100*1000);

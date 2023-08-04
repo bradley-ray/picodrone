@@ -6,7 +6,9 @@
 #define MPU_ADDR 0x68
 
 static uint8_t calibrated = 0;
-static mpu_gyro_t calib_gyro = {0};
+int32_t calib_gyro_x = 0;
+int32_t calib_gyro_y = 0;
+int32_t calib_gyro_z = 0;
 
 static mpu_accel_t accel_vals = {0};
 static mpu_gyro_t gyro_vals = {0};
@@ -17,6 +19,10 @@ static void val_to_int(uint8_t* buf, int16_t* res) {
 	for(uint8_t i = 0; i < 3; ++i) {
 		res[i] = buf[i*2] << 8 | buf[(i*2) + 1];
 	}
+}
+
+static float lsb_to_unit(int16_t val, float lsb_per_unit) {
+	return (float)val / lsb_per_unit;
 }
 
 static void mpu_reset() {
@@ -41,16 +47,18 @@ static void mpu_gyro_init(mpu_gyro_range_t gyro) {
 static void mpu_calibrate(void) {
 	for(uint16_t i = 0; i < 2000; ++i) {
 		mpu_update_gyro();
-		calib_gyro.x += gyro_vals.x;
-		calib_gyro.y += gyro_vals.y;
-		calib_gyro.z += gyro_vals.z;
+		calib_gyro_x += gyro_vals.x;
+		calib_gyro_y += gyro_vals.y;
+		calib_gyro_z += gyro_vals.z;
 
 		sleep_ms(1);
 	}
 
-	calib_gyro.x /= 2000;
-	calib_gyro.y /= 2000;
-	calib_gyro.z /= 2000;
+	printf("CALIBRATED SUM: %d\n", calib_gyro_x);
+	calib_gyro_x /= 2000;
+	calib_gyro_y /= 2000;
+	calib_gyro_z /= 2000;
+	printf("CALIBRATED AVG: %d\n", calib_gyro_x);
 
 	calibrated = 1;
 }
@@ -72,8 +80,6 @@ void mpu_update_accel(void) {
 	i2c_write_blocking(i2c0, MPU_ADDR, &start, 1, true);
 	i2c_read_blocking(i2c0, MPU_ADDR, buf, 6, false);
 	val_to_int(buf, (int16_t*)&accel_vals);
-
-	printf("ax: %d, ay: %d, az: %d\n", accel_vals.x, accel_vals.y, accel_vals.z);
 }
 
 void mpu_update_gyro(void) {
@@ -84,20 +90,18 @@ void mpu_update_gyro(void) {
 	val_to_int(buf, (int16_t*)&gyro_vals);
 
 	if (calibrated) {
-		gyro_vals.x -= calib_gyro.x;
-		gyro_vals.y -= calib_gyro.y;
-		gyro_vals.z -= calib_gyro.z;
+		gyro_vals.x -= calib_gyro_x;
+		gyro_vals.y -= calib_gyro_y;
+		gyro_vals.z -= calib_gyro_z;
 	}
-
-	printf("gx: %d, gy: %d, gz: %d\n", gyro_vals.x, gyro_vals.y, gyro_vals.z);
 }
 
-void mpu_update_angles(void) {
-	//current_angle.roll += gyro_vals.x;
-	//current_angle.pitch += gyro_vals.y;
-	//current_angle.yaw += gyro_vals.z;
-}
-
-mpu_angle_t* mpu_get_angles(void) {
-	return &current_angle;
+void mpu_update_angles(mpu_angle_t* angle, uint32_t time) {
+	// TODO: need to take care of value drift 
+	// TODO: maybe implement filter to deal with noise
+	float ms = (float)time / 1000;
+	float unit = 65.5;
+	angle->roll += lsb_to_unit(gyro_vals.x, unit) * ms/1000;
+	angle->pitch += lsb_to_unit(gyro_vals.y, unit) * ms/1000;
+	angle->yaw += lsb_to_unit(gyro_vals.z, unit) * ms/1000;
 }

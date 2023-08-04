@@ -4,15 +4,41 @@
 #include "pico/cyw43_arch.h"
 #include "pico/stdlib.h"
 
+#include "mpu.h"
 #include "bt.h"
 
 #define RFCOMM_SERVER_CHANNEL 1
 #define HEARTBEAT_PERIOD_MS 1000
 
-static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
+static mpu_angle_t current_angles = {0};
+static uint32_t start = 0;
+
 static uint16_t rfcomm_channel_id;
+static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
 static uint8_t  spp_service_buffer[150];
 static btstack_packet_callback_registration_t hci_event_callback_registration;
+
+// TODO: should move this and bt_main out of lib/blutooth into src/
+static btstack_timer_source_t task_timer;
+static uint8_t cmd_buf[16];
+static void task_timer_handler(struct btstack_timer_source *ts) {
+	mpu_update_accel();
+	mpu_update_gyro();
+	mpu_update_angles(&current_angles, time_us_32() - start);
+	start = time_us_32();
+
+	static uint32_t i = 0;
+
+	if (i++ % 250 == 0) {
+		printf("Angle roll: %f degrees\n", current_angles.roll);
+		printf("Angle pitch: %f degrees\n", current_angles.pitch);
+		printf("Angle yaw: %f degrees\n",  current_angles.yaw);
+	}
+
+	// re-regiter timer
+	btstack_run_loop_set_timer(ts, 4);
+	btstack_run_loop_add_timer(ts);
+}
 
 static void spp_service_setup(void){
     hci_event_callback_registration.callback = &packet_handler;
@@ -93,13 +119,19 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 }
 
 void bt_init(void) {
-    hci_event_callback_registration.callback = &packet_handler;
-    hci_add_event_handler(&hci_event_callback_registration);
 }
 
-int btstack_main(int argc, const char * argv[]){
+
+int btstack_main(int argc, const char * argv[]) {
     (void)argc;
     (void)argv;
+
+    hci_event_callback_registration.callback = &packet_handler;
+    hci_add_event_handler(&hci_event_callback_registration);
+
+	task_timer.process = &task_timer_handler;
+	btstack_run_loop_set_timer(&task_timer, 4);
+	btstack_run_loop_add_timer(&task_timer);
 
     spp_service_setup();
 

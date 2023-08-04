@@ -38,15 +38,14 @@ typedef struct {
 } mpu_gyro_t;
 
 typedef struct {
-	int16_t roll;
-	int16_t pitch;
-	int16_t yaw;
+	float roll;
+	float pitch;
+	float yaw;
 } mpu_angle_t;
 
 void mpu_init(mpu_accel_range_t accel, mpu_gyro_range_t gyro);
 void mpu_update_accel(void);
 void mpu_update_gyro(void);
-void mpu_update_angles(void);
-mpu_angle_t* mpu_get_angles(void);
+void mpu_update_angles(mpu_angle_t* angle, uint32_t time);
 
 #endif
