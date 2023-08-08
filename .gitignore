@@ -2,3 +2,7 @@ hardware/picodrone_controller/fp-info-cache
 hardware/picodrone_controller/picodrone_controller-backups*
 *.lck
 .venv
+firmware/build
+firmware/compile_commands.json
+.ccls-cache
+.ccls
