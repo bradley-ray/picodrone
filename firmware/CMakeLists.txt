@@ -13,6 +13,7 @@ add_executable(picodrone
 	src/main.c
 	lib/bluetooth/bt.c
 	lib/mpu6050/mpu.c
+	lib/control/control.c
 )
 
 
