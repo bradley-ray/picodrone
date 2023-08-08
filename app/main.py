@@ -24,7 +24,6 @@ yaw = 0.0
 throttle = 0.0
 
 
-# TODO: implement functions to end commands over serial
 # TODO: at some point implement functions to connect to bluetooth with rfcomm
 #       so it doesn't have to be done outside this script
 class DroneController(Controller):
@@ -106,10 +105,9 @@ if __name__ == "__main__":
         print("Please provide serial port!")
         exit(1)
 
-    with open("log.txt", 'w') as f:
-        controller = DroneController(
-            sys.argv[1],
-            interface="/dev/input/js0",
-            connecting_using_ds4drv=False
-        )
-        controller.listen(timeout=60)
+    controller = DroneController(
+        sys.argv[1],
+        interface="/dev/input/js0",
+        connecting_using_ds4drv=False
+    )
+    controller.listen(timeout=60)
