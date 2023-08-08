@@ -14,7 +14,7 @@ static pid_err_t P_errors = {0};
 static pid_err_t I_errors = {0};
 static pid_err_t D_errors = {0};
 
-static orientation_t PID_controller = {0};
+static mpu_angle_t PID_controller = {0};
 
 typedef struct {
 	uint8_t slice, chan;
@@ -46,13 +46,13 @@ static void calc_errors(pid_err_t* errors) {
 }
 
 static void calc_pid(void) {
-	PID_controller.P = (P_errors.p_err * P_gain.Kp)
+	PID_controller.pitch = (P_errors.p_err * P_gain.Kp)
 					   + (I_errors.p_err * P_gain.Ki)
 					   + (D_errors.p_err * P_gain.Kd);
-	PID_controller.R = (P_errors.r_err * R_gain.Kp)
+	PID_controller.roll = (P_errors.r_err * R_gain.Kp)
 					   + (I_errors.r_err * R_gain.Ki)
 					   + (D_errors.r_err * R_gain.Kd);
-	PID_controller.Y = (P_errors.y_err * Y_gain.Kp)
+	PID_controller.yaw = (P_errors.y_err * Y_gain.Kp)
 					   + (I_errors.y_err * Y_gain.Ki)
 					   + (D_errors.y_err * Y_gain.Kd);
 }
@@ -69,20 +69,20 @@ static void calc_pwm(int16_t throttle) {
 	//    roll: +right
 	//    yaw: +right
 	
-	uint16_t val;
+	float val;
 	
 	// TODO: convert val to pwm duty cycle
-	val = throttle + PID_controller.P + PID_controller.R + PID_controller.Y;
-	motors.m1.val = val;
+	val = throttle + PID_controller.pitch + PID_controller.roll + PID_controller.yaw;
+	motors.m1.val = (uint16_t)val;
 
-	val = throttle + PID_controller.P - PID_controller.R - PID_controller.Y;
-	motors.m2.val = val;
+	val = throttle + PID_controller.pitch - PID_controller.roll - PID_controller.yaw;
+	motors.m2.val = (uint16_t)val;
 
-	val = throttle - PID_controller.P - PID_controller.R + PID_controller.Y;
-	motors.m3.val = val;
+	val = throttle - PID_controller.pitch - PID_controller.roll + PID_controller.yaw;
+	motors.m3.val = (uint16_t)val;
 
-	val = throttle - PID_controller.P + PID_controller.R - PID_controller.Y;
-	motors.m4.val = val;
+	val = throttle - PID_controller.pitch + PID_controller.roll - PID_controller.yaw;
+	motors.m4.val = (uint16_t)val;
 }
 
 static void set_pwm(void) {

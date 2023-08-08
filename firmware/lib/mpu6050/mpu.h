@@ -38,8 +38,8 @@ typedef struct {
 } mpu_gyro_t;
 
 typedef struct {
-	float roll;
 	float pitch;
+	float roll;
 	float yaw;
 } mpu_angle_t;
 

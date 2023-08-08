@@ -10,10 +10,6 @@
 #define MOTOR_4_GPIO 4
 
 typedef struct {
-	float P, R, Y;
-} orientation_t;
-
-typedef struct {
 	float Kp, Ki, Kd;
 } pid_gain_t;
 
