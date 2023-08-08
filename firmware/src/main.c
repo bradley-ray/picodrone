@@ -15,9 +15,29 @@
 
 void hardware_init(void);
 
+// TODO: start with these pid values and tune as needed
+pid_gain_t pitch_cfg = {
+	.Kp = 1.2,
+	.Ki = 0.02,
+	.Kd = 15,
+};
+
+pid_gain_t roll_cfg = {
+	.Kp = 1.2,
+	.Ki = 0.02,
+	.Kd = 15,
+};
+
+pid_gain_t yaw_cfg = {
+	.Kp = 1.2,
+	.Ki = 0.02,
+	.Kd = 0,
+};
+
 int main() {
 	hardware_init();
 	mpu_init(MPU_ACCEL_4G, MPU_GYRO_500_DEG);
+	pid_init(&pitch_cfg, &roll_cfg, &yaw_cfg);
 	motors_init();
 	btstack_main(0, NULL);
 	btstack_run_loop_execute();
