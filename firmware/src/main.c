@@ -3,6 +3,7 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "hardware/i2c.h"
+#include "hardware/pwm.h"
 
 #include "btstack.h"
 #include "btstack_event.h"
@@ -10,13 +11,14 @@
 
 #include "bt.h"
 #include "mpu.h"
+#include "control.h"
 
 void hardware_init(void);
-
 
 int main() {
 	hardware_init();
 	mpu_init(MPU_ACCEL_4G, MPU_GYRO_500_DEG);
+	motors_init();
 	btstack_main(0, NULL);
 	btstack_run_loop_execute();
 
@@ -33,5 +35,12 @@ void hardware_init(void) {
 	gpio_set_function(1, GPIO_FUNC_I2C);
 	gpio_pull_up(0);
 	gpio_pull_up(1);
+
+	// pwm setup
+    gpio_set_function(MOTOR_1_GPIO, GPIO_FUNC_PWM);
+    gpio_set_function(MOTOR_2_GPIO, GPIO_FUNC_PWM);
+    gpio_set_function(MOTOR_3_GPIO, GPIO_FUNC_PWM);
+    gpio_set_function(MOTOR_4_GPIO, GPIO_FUNC_PWM);
+
 }
 

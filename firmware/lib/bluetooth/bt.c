@@ -5,11 +5,13 @@
 #include "pico/stdlib.h"
 
 #include "mpu.h"
+#include "control.h"
 #include "bt.h"
 
 #define RFCOMM_SERVER_CHANNEL 1
 #define HEARTBEAT_PERIOD_MS 1000
 
+static int16_t throttle, pitch, roll, yaw = 0;
 static mpu_angle_t current_angles = {0};
 static uint32_t start = 0;
 
@@ -27,13 +29,7 @@ static void task_timer_handler(struct btstack_timer_source *ts) {
 	mpu_update_angles(&current_angles, time_us_32() - start);
 	start = time_us_32();
 
-	static uint32_t i = 0;
-
-	if (i++ % 250 == 0) {
-		printf("Angle roll: %f degrees\n", current_angles.roll);
-		printf("Angle pitch: %f degrees\n", current_angles.pitch);
-		printf("Angle yaw: %f degrees\n",  current_angles.yaw);
-	}
+	pid_step(throttle, pitch, roll, yaw, &current_angles);
 
 	// re-regiter timer
 	btstack_run_loop_set_timer(ts, 4);
@@ -111,16 +107,15 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
             break;
 
         case RFCOMM_DATA_PACKET:
-			// TODO: process commands from controller
+			throttle = (packet[0] << 8) + packet[1];
+			pitch = (packet[2] << 8) + packet[3];
+			roll = (packet[4] << 8) + packet[5];
+			yaw = (packet[6] << 8) + packet[7];
 			break;
         default:
             break;
     }
 }
-
-void bt_init(void) {
-}
-
 
 int btstack_main(int argc, const char * argv[]) {
     (void)argc;

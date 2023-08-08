@@ -24,6 +24,7 @@ pico_add_extra_outputs(picodrone)
 target_include_directories(picodrone PRIVATE
 	lib/bluetooth
 	lib/mpu6050
+	lib/control
 	config
 )
 
@@ -34,5 +35,6 @@ target_link_libraries(picodrone
 	pico_btstack_cyw43
 
 	hardware_i2c
+	hardware_pwm
 )
 
