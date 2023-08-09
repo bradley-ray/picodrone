@@ -79,10 +79,9 @@ static void calc_pwm(int16_t throttle) {
 	//       |
 	//    4-----3
 	//
-	//    // TODO: verify this with imu
-	//    pitch: +forward
-	//    roll: +right
-	//    yaw: +right
+	//    pitch: +backward (x axis)
+	//    roll: +right (y axis)
+	//    yaw: +left (z axis)
 	
 	float val;
 

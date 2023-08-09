@@ -29,6 +29,8 @@ static void task_timer_handler(struct btstack_timer_source *ts) {
 	mpu_update_angles(&current_angles, time_us_32() - start);
 	start = time_us_32();
 
+	printf("p: %.2f, r: %.2f, y: %.2f\n\n", current_angles.pitch, current_angles.roll, current_angles.yaw);
+
 	pid_step(throttle, &target_angles, &current_angles);
 
 	// re-regiter timer

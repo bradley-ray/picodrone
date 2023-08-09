@@ -101,7 +101,7 @@ void mpu_update_angles(mpu_angle_t* angle, uint32_t time) {
 	// TODO: maybe implement filter to deal with noise
 	float ms = (float)time / 1000;
 	float unit = 65.5;
-	angle->roll += lsb_to_unit(gyro_vals.x, unit) * ms/1000;
-	angle->pitch += lsb_to_unit(gyro_vals.y, unit) * ms/1000;
+	angle->roll += lsb_to_unit(gyro_vals.y, unit) * ms/1000;
+	angle->pitch += lsb_to_unit(gyro_vals.x, unit) * ms/1000;
 	angle->yaw += lsb_to_unit(gyro_vals.z, unit) * ms/1000;
 }
