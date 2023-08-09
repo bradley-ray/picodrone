@@ -3,6 +3,10 @@
 
 #include <inttypes.h>
 
+#define MPU_I2C_PORT i2c0
+#define MPU_SDC_PIN 21
+#define MPU_SDA_PIN 20
+
 typedef enum {
 	MPU_GYRO_CFG = 0x1b,
 	MPU_ACCEL_CFG = 0x1c,

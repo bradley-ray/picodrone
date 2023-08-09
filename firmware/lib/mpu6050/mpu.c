@@ -27,21 +27,21 @@ static float lsb_to_unit(int16_t val, float lsb_per_unit) {
 
 static void mpu_reset() {
 	uint8_t buf[] = {MPU_PWR_MGMT_1, 0};
-	i2c_write_blocking(i2c0, MPU_ADDR, buf, 2, false);
+	i2c_write_blocking(MPU_I2C_PORT, MPU_ADDR, buf, 2, false);
 }
 
 static void mpu_accel_init(mpu_accel_range_t accel) {
 	uint8_t buf[2];
 	buf[0] = MPU_ACCEL_CFG;
 	buf[1] = accel << 3;
-	i2c_write_blocking(i2c0, MPU_ADDR, buf, 2, false);
+	i2c_write_blocking(MPU_I2C_PORT, MPU_ADDR, buf, 2, false);
 }
 
 static void mpu_gyro_init(mpu_gyro_range_t gyro) {
 	uint8_t buf[2];
 	buf[0] = MPU_GYRO_CFG;
 	buf[1] = gyro << 3;
-	i2c_write_blocking(i2c0, MPU_ADDR, buf, 2, false);
+	i2c_write_blocking(MPU_I2C_PORT, MPU_ADDR, buf, 2, false);
 }
 
 static void mpu_calibrate(void) {
@@ -77,16 +77,16 @@ void mpu_init(mpu_accel_range_t accel, mpu_gyro_range_t gyro) {
 void mpu_update_accel(void) {
 	uint8_t buf[6];
 	uint8_t start = MPU_ACCEL_XOUT_H;
-	i2c_write_blocking(i2c0, MPU_ADDR, &start, 1, true);
-	i2c_read_blocking(i2c0, MPU_ADDR, buf, 6, false);
+	i2c_write_blocking(MPU_I2C_PORT, MPU_ADDR, &start, 1, true);
+	i2c_read_blocking(MPU_I2C_PORT, MPU_ADDR, buf, 6, false);
 	val_to_int(buf, (int16_t*)&accel_vals);
 }
 
 void mpu_update_gyro(void) {
 	uint8_t buf[6];
 	uint8_t start = MPU_GYRO_XOUT_H;
-	i2c_write_blocking(i2c0, MPU_ADDR, &start, 1, true);
-	i2c_read_blocking(i2c0, MPU_ADDR, buf, 6, false);
+	i2c_write_blocking(MPU_I2C_PORT, MPU_ADDR, &start, 1, true);
+	i2c_read_blocking(MPU_I2C_PORT, MPU_ADDR, buf, 6, false);
 	val_to_int(buf, (int16_t*)&gyro_vals);
 
 	if (calibrated) {

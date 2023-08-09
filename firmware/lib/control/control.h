@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include "mpu.h"
 
-#define MOTOR_1_GPIO 1
-#define MOTOR_2_GPIO 2
-#define MOTOR_3_GPIO 3
-#define MOTOR_4_GPIO 4
+#define MOTOR_1_GPIO 6
+#define MOTOR_2_GPIO 7
+#define MOTOR_3_GPIO 8
+#define MOTOR_4_GPIO 9
 
 typedef struct {
 	float Kp, Ki, Kd;

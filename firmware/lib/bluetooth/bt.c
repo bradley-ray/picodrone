@@ -9,7 +9,7 @@
 #include "bt.h"
 
 #define RFCOMM_SERVER_CHANNEL 1
-#define HEARTBEAT_PERIOD_MS 1000
+#define TIMER_PERIOD_MS 4
 
 static int16_t throttle = 0;
 static mpu_angle_t current_angles = {0};
@@ -21,7 +21,6 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 static uint8_t  spp_service_buffer[150];
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
-// TODO: should move this and bt_main out of lib/blutooth into src/
 static btstack_timer_source_t task_timer;
 static uint8_t cmd_buf[16];
 static void task_timer_handler(struct btstack_timer_source *ts) {
@@ -33,7 +32,7 @@ static void task_timer_handler(struct btstack_timer_source *ts) {
 	pid_step(throttle, &target_angles, &current_angles);
 
 	// re-regiter timer
-	btstack_run_loop_set_timer(ts, 4);
+	btstack_run_loop_set_timer(ts, TIMER_PERIOD_MS);
 	btstack_run_loop_add_timer(ts);
 }
 
@@ -108,10 +107,14 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
             break;
 
         case RFCOMM_DATA_PACKET:
-			throttle = (packet[0] << 8) + packet[1];
-			target_angles.pitch = (packet[2] << 8) + packet[3];
-			target_angles.roll = (packet[4] << 8) + packet[5];
-			target_angles.yaw = (packet[6] << 8) + packet[7];
+			throttle = (int16_t)((packet[0] << 8) + packet[1]);
+			target_angles.pitch = (int16_t) ((packet[2] << 8) + packet[3]);
+			target_angles.roll = (int16_t)((packet[4] << 8) + packet[5]);
+			target_angles.yaw = (int16_t)((packet[6] << 8) + packet[7]);
+			printf("t: %d\n", throttle);
+			printf("p: %f\n", target_angles.pitch);
+			printf("r: %f\n", target_angles.roll);
+			printf("y: %f\n\n", target_angles.yaw);
 			break;
         default:
             break;
@@ -126,7 +129,7 @@ int btstack_main(int argc, const char * argv[]) {
     hci_add_event_handler(&hci_event_callback_registration);
 
 	task_timer.process = &task_timer_handler;
-	btstack_run_loop_set_timer(&task_timer, 4);
+	btstack_run_loop_set_timer(&task_timer, TIMER_PERIOD_MS);
 	btstack_run_loop_add_timer(&task_timer);
 
     spp_service_setup();

@@ -2,6 +2,10 @@
 #include "control.h"
 #include "mpu.h"
 
+#define MOTOR_VAL_MAX 255
+#define PWM_MAX (UINT16_MAX/2)
+#define IERR_MAX (UINT16_MAX / 2)
+
 typedef struct {
 	float p_err, r_err, y_err;
 } pid_err_t;
@@ -13,6 +17,16 @@ static pid_gain_t Y_gain = {0};
 static pid_err_t P_errors = {0};
 static pid_err_t I_errors = {0};
 static pid_err_t D_errors = {0};
+
+static float clamp(float min, float max, float num) {
+	if (num < min) {
+		return min;
+	} else if (num > max) {
+		return max;
+	} else {
+		return num;
+	}
+}
 
 static mpu_angle_t PID_controller = {0};
 
@@ -28,13 +42,14 @@ static struct { motor_t m1, m2, m3, m4; } motors = {
 	.m4 = {0},
 };
 
-static uint8_t motor_1_slice_num, motor_2_slice_num, motor_3_slice_num, motor_4_slice_num;
-static uint8_t motor_1_chan, motor_2_chan, motor_3_chan, motor_4_chan;
-
 static void calc_errors(pid_err_t* errors) {
-	I_errors.p_err += errors->p_err;
-	I_errors.r_err += errors->r_err;
-	I_errors.y_err += errors->y_err;
+	I_errors.p_err += P_gain.Ki * errors->p_err;
+	I_errors.r_err += R_gain.Ki * errors->r_err;
+	I_errors.y_err += Y_gain.Ki * errors->y_err;
+
+	I_errors.p_err = clamp(0, IERR_MAX, I_errors.p_err);
+	I_errors.r_err = clamp(0, IERR_MAX, I_errors.r_err);
+	I_errors.y_err = clamp(0, IERR_MAX, I_errors.y_err);
 
 	D_errors.p_err = errors->p_err - P_errors.p_err;
 	D_errors.r_err = errors->r_err - P_errors.r_err;
@@ -47,13 +62,13 @@ static void calc_errors(pid_err_t* errors) {
 
 static void calc_pid(void) {
 	PID_controller.pitch = (P_errors.p_err * P_gain.Kp)
-					   + (I_errors.p_err * P_gain.Ki)
+					   + (I_errors.p_err)
 					   + (D_errors.p_err * P_gain.Kd);
 	PID_controller.roll = (P_errors.r_err * R_gain.Kp)
-					   + (I_errors.r_err * R_gain.Ki)
+					   + (I_errors.r_err)
 					   + (D_errors.r_err * R_gain.Kd);
 	PID_controller.yaw = (P_errors.y_err * Y_gain.Kp)
-					   + (I_errors.y_err * Y_gain.Ki)
+					   + (I_errors.y_err)
 					   + (D_errors.y_err * Y_gain.Kd);
 }
 
@@ -70,19 +85,18 @@ static void calc_pwm(int16_t throttle) {
 	//    yaw: +right
 	
 	float val;
-	
-	// TODO: convert val to pwm duty cycle
+
 	val = throttle + PID_controller.pitch + PID_controller.roll + PID_controller.yaw;
-	motors.m1.val = (uint16_t)val;
+	motors.m1.val = (uint16_t)(PWM_MAX * clamp(0, MOTOR_VAL_MAX, val) / 255);
 
 	val = throttle + PID_controller.pitch - PID_controller.roll - PID_controller.yaw;
-	motors.m2.val = (uint16_t)val;
+	motors.m2.val = (uint16_t)(PWM_MAX * clamp(0, MOTOR_VAL_MAX, val) / 255);
 
 	val = throttle - PID_controller.pitch - PID_controller.roll + PID_controller.yaw;
-	motors.m3.val = (uint16_t)val;
+	motors.m3.val = (uint16_t)(PWM_MAX * clamp(0, MOTOR_VAL_MAX, val) / 255);
 
 	val = throttle - PID_controller.pitch + PID_controller.roll - PID_controller.yaw;
-	motors.m4.val = (uint16_t)val;
+	motors.m4.val = (uint16_t)(PWM_MAX * clamp(0, MOTOR_VAL_MAX, val) / 255);
 }
 
 static void set_pwm(void) {
@@ -123,27 +137,27 @@ void motors_init(void) {
 	motors.m1.chan = pwm_gpio_to_channel(MOTOR_1_GPIO);
 	pwm_set_clkdiv(motors.m1.slice, 256.0);
 	pwm_set_phase_correct(motors.m1.slice, true);
-	pwm_set_wrap(motors.m1.slice, UINT16_MAX);
+	pwm_set_wrap(motors.m1.slice, PWM_MAX);
 	pwm_set_enabled(motors.m1.slice,true);
 
 	motors.m2.slice = pwm_gpio_to_slice_num(MOTOR_2_GPIO);
 	motors.m2.chan = pwm_gpio_to_channel(MOTOR_2_GPIO);
 	pwm_set_clkdiv(motors.m2.slice, 256.0);
 	pwm_set_phase_correct(motors.m2.slice, true);
-	pwm_set_wrap(motors.m2.slice, UINT16_MAX);
+	pwm_set_wrap(motors.m2.slice, PWM_MAX);
 	pwm_set_enabled(motors.m2.slice,true);
 
 	motors.m3.slice = pwm_gpio_to_slice_num(MOTOR_3_GPIO);
 	motors.m3.chan = pwm_gpio_to_channel(MOTOR_3_GPIO);
 	pwm_set_clkdiv(motors.m3.slice, 256.0);
 	pwm_set_phase_correct(motors.m3.slice, true);
-	pwm_set_wrap(motors.m3.slice, UINT16_MAX);
+	pwm_set_wrap(motors.m3.slice, PWM_MAX);
 	pwm_set_enabled(motors.m3.slice,true);
 
 	motors.m4.slice = pwm_gpio_to_slice_num(MOTOR_4_GPIO);
 	motors.m4.chan = pwm_gpio_to_channel(MOTOR_4_GPIO);
 	pwm_set_clkdiv(motors.m4.slice, 256.0);
 	pwm_set_phase_correct(motors.m4.slice, true);
-	pwm_set_wrap(motors.m4.slice, UINT16_MAX);
+	pwm_set_wrap(motors.m4.slice, PWM_MAX);
 	pwm_set_enabled(motors.m4.slice,true);
 }

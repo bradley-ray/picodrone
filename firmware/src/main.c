@@ -36,9 +36,11 @@ pid_gain_t yaw_cfg = {
 
 int main() {
 	hardware_init();
+	printf("starting\n");
 	mpu_init(MPU_ACCEL_4G, MPU_GYRO_500_DEG);
 	pid_init(&pitch_cfg, &roll_cfg, &yaw_cfg);
 	motors_init();
+	printf("hello world\n");
 	btstack_main(0, NULL);
 	btstack_run_loop_execute();
 
@@ -50,17 +52,16 @@ void hardware_init(void) {
     cyw43_arch_init();
 
 	// i2c setup for imu
-	i2c_init(i2c0, 100*1000);
-	gpio_set_function(0, GPIO_FUNC_I2C);
-	gpio_set_function(1, GPIO_FUNC_I2C);
-	gpio_pull_up(0);
-	gpio_pull_up(1);
+	i2c_init(MPU_I2C_PORT, 100*1000);
+	gpio_set_function(MPU_SDC_PIN, GPIO_FUNC_I2C);
+	gpio_set_function(MPU_SDA_PIN, GPIO_FUNC_I2C);
+	gpio_pull_up(MPU_SDC_PIN);
+	gpio_pull_up(MPU_SDA_PIN);
 
 	// pwm setup
     gpio_set_function(MOTOR_1_GPIO, GPIO_FUNC_PWM);
     gpio_set_function(MOTOR_2_GPIO, GPIO_FUNC_PWM);
     gpio_set_function(MOTOR_3_GPIO, GPIO_FUNC_PWM);
     gpio_set_function(MOTOR_4_GPIO, GPIO_FUNC_PWM);
-
 }
 
