@@ -3,27 +3,35 @@
 <img src='hardware/picodrone_controller/picodrone-pcb.png' height=256px />
 <img src='picodrone-assembled.jpg' height=256px />
 
-- non pcb components
-	- [qx95 quadcopter frame](https://www.amazon.com/gp/product/B08LTNT16B/ref=ox_sc_act_image_5?smid=A21I6NP3YWF176&psc=1)
-	- [8520 brushed motors + 55mm propellors](https://www.amazon.com/gp/product/B078NL9KQQ/ref=ox_sc_act_image_4?smid=A2U3BMERFH1POA&psc=1)
-	- [raspberry pi pico w](https://www.adafruit.com/product/5526)
-	- [600mah LiPo](https://www.amazon.com/gp/product/B08XZNW67T/ref=ox_sc_act_image_3?smid=A1UG33C8FHL6KG&psc=1)
-	- [mpu6050 imu](https://www.amazon.com/dp/B00LP25V1A?psc=1&ref=ppx_yo2ov_dt_b_product_details)
-	- [pico headers](https://www.amazon.com/gp/product/B09F2NZ3GB/ref=ox_sc_act_image_2?smid=A3DUZJNIM9L5CV&psc=1)
-	- [lipo straps](https://www.amazon.com/gp/product/B01ISKTILK/ref=ox_sc_act_image_1?smid=A2P4WQ7IOJ56WV&psc=1)
+- `hardware/` contains the kicad schematic and pcb layout files 
+    - qx95 drone frame
+    - 8520 brushed motors
+    - header sockets for raspberry pi pico
+    - header sockets for mpu 6050 breakout board
+    - header sockets for sd card spi breakout board (future use)
 
+- `firmware/` contains the code for the microcontroller
+	- requires pico_sdk to be downloaded and PICO_SDK_PATH to be set
+    - requires freertos to be downloaded and FREERTOS_KERNEL_PATH to be set
+    - uses `btstack` and bluetooth rfcomm to receive control commands over bluetooth connection
 
-- `hardware/`
-	- [x] schematic layout
-	- [x] pcb layout
-	- [x] review schematic/pcb for errors
-	- [x] review pcb constraints for manuacture
-	- [x] order parts
-	- [x] assemble
-	- [ ] test
+- `app/` contains python script to send inputs from ps4 controller to drone
+    - install `pyPS4Controller` and `pySerial`
+    - find pico_w bt addr using `sdptool browse`
+    - run `rfcomm connect /dev/rfcomm0 <btaddr>` to connect to the drone
+    - run `python3 main.py rfcomm0`
+    - connect ps4 controller
+        - `triangle` - increase pitch
+        - `cross` - decrease pitch
+        - `square` - roll left
+        - `circle` - roll right
+        - `up arrow` - increase throttle
+        - `down arrow` - decrease throttle
+        - `left arrow` - yaw left
+        - `right arrow` - yaw right
 
-- `firmware/`
-	- TODO: write firmware for pi pico
-
-- `app/`
-	- TODO: basic app for controller
+## TODO
+- assemble full system on frame to run and test
+- image of assembled full system on frame
+- need a filter or something for improved imu data
+- need to test and adjust pid values
