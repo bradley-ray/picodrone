@@ -31,7 +31,6 @@
         - `right arrow` - yaw right
 
 ## TODO
-- assemble full system on frame to run and test
-- image of assembled full system on frame
+- need to fix value drift on imu
 - need a filter or something for improved imu data
-- need to test and adjust pid values
+- need to continue and test and adjust pid values
