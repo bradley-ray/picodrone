@@ -11,8 +11,7 @@
     - header sockets for sd card spi breakout board (future use)
 
 - `firmware/` contains the code for the microcontroller
-	- requires pico_sdk to be downloaded and PICO_SDK_PATH to be set
-    - requires freertos to be downloaded and FREERTOS_KERNEL_PATH to be set
+    - requires pico_sdk to be downloaded and PICO_SDK_PATH to be set
     - uses `btstack` and bluetooth rfcomm to receive control commands over bluetooth connection
 
 - `app/` contains python script to send inputs from ps4 controller to drone
