@@ -1,7 +1,7 @@
 # Pico Quadcopter Drone
 
+<img src='drone.jpg' height=256px />
 <img src='hardware/picodrone_controller/picodrone-pcb.png' height=256px />
-<img src='picodrone-assembled.jpg' height=256px />
 
 - `hardware/` contains the kicad schematic and pcb layout files 
     - qx95 drone frame
