@@ -16,7 +16,7 @@ static mpu_angle_t current_angles = {0};
 static mpu_angle_t target_angles = {0};
 static uint32_t start = 0;
 
-static uint16_t rfcomm_channel_id;
+static uint16_t rfcomm_channel_id = 0;
 static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
 static uint8_t  spp_service_buffer[150];
 static btstack_packet_callback_registration_t hci_event_callback_registration;
@@ -24,14 +24,17 @@ static btstack_packet_callback_registration_t hci_event_callback_registration;
 static btstack_timer_source_t task_timer;
 static uint8_t cmd_buf[16];
 static void task_timer_handler(struct btstack_timer_source *ts) {
-	mpu_update_accel();
-	mpu_update_gyro();
-	mpu_update_angles(&current_angles, time_us_32() - start);
-	start = time_us_32();
+	// may change in future, but for now if no connection, don't bother running loop
+	if (rfcomm_channel_id) {
+		mpu_update_accel();
+		mpu_update_gyro();
+		mpu_update_angles(&current_angles, time_us_32() - start);
+		start = time_us_32();
 
-	printf("p: %.2f, r: %.2f, y: %.2f\n\n", current_angles.pitch, current_angles.roll, current_angles.yaw);
+		//printf("p: %.2f, r: %.2f, y: %.2f\n\n", current_angles.pitch, current_angles.roll, current_angles.yaw);
 
-	pid_step(throttle, &target_angles, &current_angles);
+		pid_step(throttle, &target_angles, &current_angles);
+	}
 
 	// re-regiter timer
 	btstack_run_loop_set_timer(ts, TIMER_PERIOD_MS);
@@ -113,10 +116,12 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 			target_angles.pitch = (int16_t) ((packet[2] << 8) + packet[3]);
 			target_angles.roll = (int16_t)((packet[4] << 8) + packet[5]);
 			target_angles.yaw = (int16_t)((packet[6] << 8) + packet[7]);
+			/*
 			printf("t: %d\n", throttle);
 			printf("p: %f\n", target_angles.pitch);
 			printf("r: %f\n", target_angles.roll);
 			printf("y: %f\n\n", target_angles.yaw);
+			*/
 			break;
         default:
             break;
